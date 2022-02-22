@@ -1,0 +1,237 @@
+CREATE TABLE employers (
+    company_name VARCHAR(200),
+    company_address VARCHAR(300),
+    --yearly_revenue FLOAT(5,2) -- precision,scale
+    yearly_revenue NUMERIC(5，2), -- Exact VALUE
+    is_hiring BOOLEAN
+);
+
+
+INSERT INTO users (yearly_salary,full_name,curent_status) 
+VALUES (19000,'Max Schwarz','self-employed'),
+(25000,' Julie Barnes','self-employed'),
+(0,'Michael Smith','self-employed');
+
+
+CREATE TABLE employers (
+    company_name VARCHAR(200),
+    company_address VARCHAR(300),
+    yearly_revenue NUMERIC(5,2), 
+    is_hiring BOOLEAN DEFAULT FALSE
+);
+
+
+CREATE TABLE conversations (
+    user_name VARCHAR(200),
+    employer_name VARCHAR(250),
+    message TEXT,
+    date_sent TIMESTAMP DEFAULT curent_status
+);
+
+INSERT INTO employers(company_name,company_address,yearly_revenue,is_hiring)
+values('Learning Inc','1233 ss street',30,TRUE),('linkedin','123dreson street',56.44,FALSE);
+
+
+INSERT INTO conversations(user_name,employer_name,message,date_sent)
+values('Julie Barnes','Learning Inc','Hi I like Learning','2021-12-3 17:32:10');
+
+drop table employers
+
+alter table users
+modify column full_name varchar(300);
+
+
+select avg(yearly_salary) from users;
+
+create table users(
+full_name VARCHAR(255) NOT NULL, -- constraints
+salary INT 
+);
+
+-- check constraint
+
+yearly_salary INT CHECK (yearly_salary > 0); -- constraints satisfy >0
+check (yearly_salary < max_salary); -- match two columns
+
+update users
+set yearly_salary= NULL
+where full_name = 'Micheal Smith'
+alter table users
+add constraint yearly_salary_positive check (yearly_salary > 0);
+
+
+add id serial primary key -- postgresql
+
+create table users(
+id INT NOT NULL UNIQUE, -- unique is a constraint
+full_name VARCHAR(255) NOT NULL, 
+salary int);
+
+
+
+create table users(
+id INT PRIMARY KEY AUTO_INCREMENT, -- parimary key is a constraint, this column must be unique and not null, only one primary key per table is allowed.
+full_name VARCHAR(255) NOT NULL,  -- auto_increment is an attribute
+salary int);
+
+-- or id INT SERIAL PRIMARY KEY, 
+
+CREATE TABLE users (
+    id int primary key auto_increment,
+    first_name varchar(200) not null,
+    last_name varchar(200) not null,
+    full_name varchar(401) generated always as (concat(first_name,' ',last_name)),
+    current_status enum ('self-employed','employed','unemployed')
+);
+
+
+insert into users(first_name, last_name,current_status)
+values('alison','rao','unemployed');
+
+-- example sales
+
+create table sales(
+    id int primary key auto_increment,
+    date_created date default (current_date),
+    date_fufilled date,
+    customer_name varchar(300) not null,
+    product_name varchar(300) not null,
+    volume numeric (10,3) not null check (volume >= 0),
+    is_recurring boolean default false,
+    is_disputed boolean default false
+)
+
+
+
+insert into sales(customer_name, product_name,volume,is_recurring,is_disputed)
+values('Max Schwarz','A book',1299,TRUE,FALSE),
+('jdje', 'learning Inc',4889.554,FALSE,FALSE),
+('delien','Oil Inc',36733.34,TRUE,FALSE);
+
+update sales
+set product_name = 'A book',
+volume = volume * 1000
+where id = 7;
+
+
+SELECT customer_name, product_name, volume /1000 FROM sales;
+
+
+
+SELECT * FROM sales
+where date_created > '' and date_created < '';
+
+
+SELECT * FROM sales
+where date_created between '' and  '';
+
+
+-- sorting and ordering ressults
+
+SELECT * FROM <table>
+ORDER BY <column name>; -- sort the selected data in ascending order
+
+SELECT * FROM <table>
+ORDER BY <column name> DESC; -- sort the order in descending order.
+
+SELECT * FROM <table>
+LIMIT <number X>;  -- select only the first X number of rows (can be combined with sorting)
+
+
+SELECT * FROM <table>
+LIMIT <number X>
+OFFSET <offset number Y>;   -- select X number of rows after skipping Y number of rows
+
+
+SELECT DISTINCT FROM <table>; -- emit duplicate data
+
+
+-- create subqueries
+
+create view base_result as select * from sales where volume>1000;
+
+-- view is a solid expression
+
+select customer_name, product_name
+from (select * from select sales
+where volume > 1000) as base_result;
+
+
+
+create table users(
+    id int primary key auto_increment,
+    first_name varchar(300)not null,
+    last_name varchar(300)not null,
+    email varchar(300)not null,
+    address_id -- foreign key
+)
+
+
+-- combine tables
+
+create table users(
+    id int primary key auto_increment,
+    first_name varchar(300)not null,
+    last_name varchar(300)not null,
+    email varchar(300)not null,
+    address_id int not null
+);
+
+create table addresses(
+    id int primary key auto_increment,
+    street varchar(300) not null,
+    house_number varchar(50) not null,
+    city_id int not null
+);
+
+create table city(
+    id int primary key auto_increment,
+    name varchar(300) not null
+);
+
+
+
+select  *
+from users
+INNER JOIN addresses on users.address_id = addresses.id;
+
+
+select  * --u.id,first_name,last_name,street,house_number,city_id
+from users AS u
+INNER JOIN addresses AS a on u.address_id = a.id;
+
+
+
+
+select  u.id,first_name,last_name,street,house_number,city_id,c.name AS city_name
+from users AS u
+INNER JOIN addresses AS a on u.address_id = a.id
+inner join city as c on a.city_id = c.id;
+where c.name='Berlin'; -- only one column condition is berlin
+
+where c.name='Berlin' or c.id=2
+order by u.id desc;
+
+select name as city_name, u.first_name, last_name from city as c
+left join addresses as a on c.id = a.city_id
+left join users as u on u.address_id = a.id;
+
+left join -- keep all the first table inner join only keep jointly the vlaue.
+
+
+cross join -- will combine all the possibilities
+
+union -- is a clause that combines multiple result set into one result set by appending rows
+
+join -- merge multiple tables into one result set by appending columns
+
+select id, first_name from users
+union
+select id, street from addresses;
+
+int references -- foreign keys constraint 
+on delete restrict -- prevent to be deleted
+on delete cascade -- if delete address, users that link that address will be deleted as well
+
+
+
